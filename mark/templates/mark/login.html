@@ -1,0 +1,142 @@
+{% extends "mark/layout.html" %} {% block style %}
+<style>
+  /* Body Layout */
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+    height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Login Container */
+  .login-wrapper {
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 350px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .login-wrapper h1 {
+    color: #0077cc;
+    margin-bottom: 20px;
+  }
+
+  /* Login Form */
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .login-form input[type='text'],
+  .login-form input[type='password'] {
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 15px;
+  }
+
+  .login-submit-btn {
+    background-color: #0077cc;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+  }
+
+  .login-submit-btn:hover {
+    background-color: #005fa3;
+  }
+
+  /* Signup Link */
+  .redirect-container {
+    margin-top: 16px;
+    width: 100%;
+  }
+
+  .signup-link {
+    display: block;
+    text-align: center;
+    background-color: #343a40;
+    color: white;
+    padding: 10px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+
+  .signup-link:hover {
+    background-color: #212529;
+  }
+
+  /* Message Box */
+  .message-box {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #ffeeba;
+    border: 1px solid #ffe8a1;
+  }
+
+  .message-box h1 {
+    margin: 0;
+    color: #856404;
+  }
+
+  .message-box h2 {
+    margin-top: 10px;
+    font-weight: normal;
+    color: #6c757d;
+  }
+
+  .hidden {
+    display: none;
+  }
+</style>
+{% endblock %} {% block script %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const messageDiv = document.querySelector('.message-box')
+    const message = messageDiv?.dataset.message
+
+    if (message) {
+      document.querySelector('.login-wrapper').classList.add('hidden')
+    }
+  })
+</script>
+{% endblock %} {% block body %} {% if messages %} {% for message in messages %}
+<div class="message-box" data-message="{{ message }}">
+  <h1>{{ message }}</h1>
+  <h2>Please refresh to login again</h2>
+</div>
+{% endfor %} {% endif %}
+
+<div class="login-wrapper">
+  <h1>Login</h1>
+  <form class="login-form" action="{% url 'login' %}" method="POST">
+    {% csrf_token %}
+    <input type="text" name="username" placeholder="Username" required />
+    <input type="password" name="password" placeholder="Password" required />
+    <input type="submit" value="Login" class="login-submit-btn" />
+  </form>
+
+  <div class="redirect-container">
+    <a class="signup-link" href="{% url 'signup' %}">New here? Sign Up</a>
+  </div>
+</div>
+
+{% endblock %}

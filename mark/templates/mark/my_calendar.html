@@ -1,0 +1,227 @@
+{% extends "mark/layout.html" %} {% block body %} {% block style %}
+
+<style>
+  .datepresent {
+    background-color: green;
+  }
+  .dateabsent {
+    background-color: red;
+  }
+  .dateleave {
+    background-color: yellow;
+  }
+  .dateholiday {
+    background-color: blanchedalmond;
+  }
+
+  li {
+    list-style: none;
+  }
+
+  .NP {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .pop {
+    padding: 10px;
+    background-color: aqua;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+  }
+</style>
+
+<script>
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted || window.performance.navigation.type === 2) {
+      // Back/forward navigation detected
+      window.location.href = '/mark/'
+    }
+  })
+
+  let selectedDate = null
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('click', function (event) {
+      const goMonthDiv = document.querySelector('#go-month')
+      const toggleBtn = document.querySelector('#go-open')
+
+      if (
+        !goMonthDiv.contains(event.target) &&
+        !toggleBtn.contains(event.target)
+      ) {
+        goMonthDiv.style.display = 'none'
+      }
+    })
+
+    document.addEventListener('click', function (event) {
+      const goMonthDiv = document.querySelector('#marki')
+      const toggleBtn = document.querySelector('table')
+
+      if (
+        !goMonthDiv.contains(event.target) &&
+        !toggleBtn.contains(event.target)
+      ) {
+        goMonthDiv.style.display = 'none'
+      }
+    })
+
+    document.querySelector('#go-month').style.display = 'none'
+    document.querySelector('#marki').style.display = 'none'
+
+    document.querySelector('#go-open').onclick = () => {
+      document.querySelector('#go-month').style.display = 'block'
+    }
+
+    document.querySelector('#go-close').onclick = () => {
+      const goMonth = document.querySelector('#go-month')
+      const currentDisplay = goMonth.style.display
+
+      if (currentDisplay !== 'none') {
+        goMonth.style.display = 'none'
+      } else {
+        goMonth.style.display = 'block'
+      }
+    }
+
+    // Store selected date from table
+    document.querySelectorAll('.date-day').forEach((cell) => {
+      cell.addEventListener('click', () => {
+        selectedDate = cell.dataset.day
+        const selectedMonth = new Date(selectedDate).getMonth() + 1
+
+        if (selectedMonth === Number('{{ month }}')) {
+          document.querySelector('.show').innerHTML = selectedDate
+          document.querySelector('#marki').style.display = 'block'
+        } else {
+          document.querySelector('#marki').style.display = 'none'
+        }
+      })
+    })
+
+    // Set date and status into the correct form before submit
+    document.querySelectorAll('.status-form').forEach((form) => {
+      form.addEventListener('submit', (e) => {
+        if (!selectedDate) {
+          e.preventDefault()
+          alert('Please select a date first!')
+          return
+        }
+
+        const status = form.querySelector('.status-btn').innerText
+        form.querySelector('.form-date').value = selectedDate
+        form.querySelector('.form-status').value = status
+        document.querySelector('.shown').innerHTML = status
+      })
+    })
+
+    document
+      .getElementById('goto-form')
+      .addEventListener('submit', function (e) {
+        e.preventDefault()
+
+        const year = document.getElementById('year').value
+        const month = document.getElementById('month').value
+
+        if (year && month) {
+          window.location.href = `/mark/${year}/${month}/`
+        } else {
+          alert('Please enter both year and month.')
+        }
+      })
+  })
+</script>
+
+{% endblock %}
+
+<h2>{{ month_name }} {{ year }}</h2>
+<a href="">Home</a>
+
+<div class="NP">
+  <div>
+    <a href="{% url 'attendance_calendar' prev_year prev_month %}">Prev</a>
+  </div>
+  <div>
+    <button id="go-open">Go to a month</button>
+  </div>
+  <div>
+    <a href="{% url 'attendance_calendar' next_year next_month %}">Next</a>
+  </div>
+</div>
+
+<table border="1" cellspacing="0" cellpadding="5">
+  <thead>
+    <tr>
+      <th>Sun</th>
+      <th>Mon</th>
+      <th>Tue</th>
+      <th>Wed</th>
+      <th>Thu</th>
+      <th>Fri</th>
+      <th>Sat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      {% for day, status in days %}
+      <td class="date{{status|default:''|lower}} date-day" data-day="{{ day }}">
+        {% if day.month == month %}
+        <strong>{{ day.day }}</strong>
+        {% else %} &nbsp; {% endif %}
+      </td>
+
+      {% if forloop.counter|divisibleby:7 %}
+    </tr>
+    <tr>
+      {% endif %} {% endfor %}
+    </tr>
+  </tbody>
+</table>
+
+<div class="pop" id="marki">
+  <!-- Checking Strings -->
+
+  <div>
+    <div class="show">Date</div>
+    <div class="shown">Status</div>
+  </div>
+
+  <!-- Checking Strings -->
+
+  <div>
+    <ul>
+      {% for status in statuses %}
+      <li>
+        <form method="POST" action="{% url 'saveattend' %}" class="status-form">
+          {% csrf_token %}
+          <input type="hidden" name="date" class="form-date" />
+          <input type="hidden" name="status" class="form-status" />
+          <button type="submit" class="status-btn">{{ status }}</button>
+        </form>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<div class="pop" id="go-month">
+  <form id="goto-form">
+    <input type="number" id="year" name="year" placeholder="Year" min="0" />
+    <input
+      type="number"
+      id="month"
+      name="month"
+      placeholder="Month"
+      min="1"
+      max="12"
+    />
+    <input type="submit" value="Go" />
+  </form>
+  <button id="go-close">Close</button>
+</div>
+
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends "mark/layout.html" %} {% block style %}
+
+<style>
+  body {
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .form-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 200px;
+  }
+
+  .sign-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .login-btn-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    margin: 10px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .login-btn {
+    padding: 5px;
+    color: white;
+    text-align: center;
+    width: 100%;
+    text-decoration: none;
+    background-color: black;
+    border-radius: 10px;
+    box-sizing: border-box;
+  }
+
+  .submit-btn {
+    color: black;
+    background-color: white;
+    border-color: black;
+    padding: 5px;
+    border-radius: 10px;
+  }
+</style>
+
+{% endblock %} {% block body %}
+
+<div class="form-container">
+  <h1>Sign Up</h1>
+  <form class="sign-form" action="{% url 'signup' %}" method="post">
+    {% csrf_token %}
+    <input
+      type="text"
+      name="username"
+      placeholder="Username"
+      value="{{ form.username.value|default:'' }}"
+      required
+    />
+    <input
+      type="text"
+      name="first_name"
+      placeholder="Name"
+      value="{{ form.first_name.value|default:'' }}"
+    />
+    <input
+      type="password"
+      name="password1"
+      placeholder="Create Password"
+      required
+    />
+    <input
+      type="password"
+      name="password2"
+      placeholder="Confirm Password"
+      required
+    />
+    <input class="submit-btn" type="submit" value="Sign Up" />
+  </form>
+  <div class="login-btn-container">
+    <a class="login-btn" href="{% url 'login' %}">Login</a>
+  </div>
+</div>
+
+{% endblock %}

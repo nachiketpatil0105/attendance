@@ -1,0 +1,93 @@
+{% extends "mark/layout.html" %} {% block style %}
+
+<style>
+  body {
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .form-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 200px;
+  }
+
+  .sign-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .login-btn-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    margin: 10px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .login-btn {
+    padding: 5px;
+    color: white;
+    text-align: center;
+    width: 100%;
+    text-decoration: none;
+    background-color: black;
+    border-radius: 10px;
+    box-sizing: border-box;
+  }
+
+  .submit-btn {
+    color: black;
+    background-color: white;
+    border-color: black;
+    padding: 5px;
+    border-radius: 10px;
+  }
+
+  .msg {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const message = document.querySelector('.msg').dataset.msg
+
+    if (message) {
+      document.querySelector('.form-container').style.display = 'none'
+    }
+  })
+</script>
+
+{% endblock %} {% block body %} {% if messages %} {% for message in messages %}
+<div class="msg" data-msg="{{message}}">
+  <h1>Logged Out</h1>
+  <h2>Refresh to Login Again</h2>
+</div>
+{% endfor %} {% endif %}
+
+<div class="form-container">
+  <h1>Login</h1>
+  <form class="sign-form" action="{% url 'login' %}" method="post">
+    {% csrf_token %}
+    <input type="text" name="username" placeholder="Username" required />
+    <input type="password" name="password" placeholder="Password" required />
+    <input class="submit-btn" type="submit" value="Login" />
+  </form>
+  <div class="login-btn-container">
+    <a class="login-btn" href="{% url 'signup' %}">New Here, Sign Up</a>
+  </div>
+</div>
+
+{% endblock %}

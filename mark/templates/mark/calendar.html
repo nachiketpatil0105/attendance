@@ -1,0 +1,453 @@
+{% extends "mark/layout.html" %} {% block style %}
+<style>
+  /* General Layout */
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+  }
+
+  h1 {
+    font-weight: bolder;
+    text-align: center;
+    color: #0077cc;
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    text-align: center;
+    color: #0077cc;
+    margin-bottom: 20px;
+  }
+
+  .goto-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  /* Navigation Panel */
+  .navigation-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .navigation-panel a,
+  #btn-go-open,
+  #home-btn {
+    background-color: #0077cc;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s ease-in-out;
+  }
+
+  .navigation-panel a:hover,
+  #btn-go-open:hover,
+  #home-btn:hover {
+    background-color: #005fa3;
+  }
+
+  /* Calendar Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  th,
+  td {
+    text-align: center;
+    padding: 12px;
+    border: 1px solid #dee2e6;
+    font-size: 16px;
+  }
+
+  th {
+    background-color: #e9ecef;
+    font-weight: 600;
+  }
+
+  td strong {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+  }
+
+  td:hover strong {
+    background-color: #f1f3f5;
+    cursor: pointer;
+  }
+
+  /* Status Colors */
+  .datepresent {
+    background-color: #d4edda;
+  }
+
+  .dateabsent {
+    background-color: #f8d7da;
+  }
+
+  .dateleave {
+    background-color: #fff3cd;
+  }
+
+  .dateholiday {
+    background-color: #d1ecf1;
+  }
+
+  /* Popups */
+  .popup {
+    padding: 20px;
+    background-color: white;
+    border-radius: 12px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 300px;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Status Form Buttons */
+  .popup button,
+  .popup input[type='submit'] {
+    margin-top: 10px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    width: 100%;
+    transition: background-color 0.2s ease-in-out;
+  }
+
+  .popup button:hover,
+  .popup input[type='submit']:hover {
+    background-color: #218838;
+  }
+
+  .popup .status-btn {
+    background-color: #007bff;
+  }
+
+  .popup .status-btn:hover {
+    background-color: #0056b3;
+  }
+
+  /* Inputs */
+  .popup input[type='number'] {
+    width: 100%;
+    padding: 8px;
+    margin: 6px 0;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+
+  /* Overlay for future enhancement (modal effect) */
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 500;
+    display: none;
+  }
+
+  /* Status Text Display */
+  .show,
+  .shown {
+    margin-top: 10px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+    color: #444;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    table,
+    th,
+    td {
+      font-size: 14px;
+      padding: 8px;
+    }
+
+    .popup {
+      width: 90%;
+    }
+
+    .navigation-panel {
+      flex-direction: column;
+      gap: 10px;
+    }
+  }
+
+  li {
+    list-style: none;
+  }
+
+  .summary-panel {
+    background-color: #eaf4ff;
+    border: 1px solid #bcdffd;
+    padding: 16px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    /* max-width: 500px; */
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .summary-panel h3 {
+    margin-top: 0;
+    color: #0077cc;
+    text-align: center;
+  }
+
+  .summary-panel ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .summary-panel li {
+    margin: 5px 0;
+    font-size: 16px;
+  }
+</style>
+{% endblock %} {% block script %}
+
+<script>
+  let selectedDate = null
+  const course = '{{ course }}'
+
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted || window.performance.navigation.type === 2) {
+      window.location.href = '/mark/' // Force reload to index on back navigation
+    }
+  })
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const popupGoMonth = document.querySelector('#popup-go-month')
+    const popupMarkAttendance = document.querySelector('#popup-mark-attendance')
+
+    // Hide popups by default
+    popupGoMonth.style.display = 'none'
+    popupMarkAttendance.style.display = 'none'
+
+    // Toggle Go-to-month popup
+    document.querySelector('#btn-go-open').onclick = () => {
+      popupGoMonth.style.display = 'block'
+    }
+
+    document.querySelector('#btn-go-close').onclick = () => {
+      popupGoMonth.style.display = 'none'
+    }
+
+    // Hide popups when clicking outside
+    document.addEventListener('click', (event) => {
+      if (
+        !popupGoMonth.contains(event.target) &&
+        !event.target.closest('#btn-go-open')
+      ) {
+        popupGoMonth.style.display = 'none'
+      }
+
+      if (
+        !popupMarkAttendance.contains(event.target) &&
+        !event.target.closest('table')
+      ) {
+        popupMarkAttendance.style.display = 'none'
+      }
+    })
+
+    // Handle table date cell click
+    document.querySelectorAll('.date-cell').forEach((cell) => {
+      cell.addEventListener('click', () => {
+        const fetched_status = cell.dataset.status
+        document.querySelector('.selected-status').innerText = fetched_status
+        selectedDate = cell.dataset.date
+        const monthInCell = new Date(selectedDate).getMonth() + 1
+
+        if (monthInCell === Number('{{ month }}')) {
+          document.querySelector('.selected-date').innerText = selectedDate
+          popupMarkAttendance.style.display = 'block'
+        } else {
+          popupMarkAttendance.style.display = 'none'
+        }
+      })
+    })
+
+    // Attach form handlers to all status buttons
+    document.querySelectorAll('.status-form').forEach((form) => {
+      form.addEventListener('submit', (e) => {
+        if (!selectedDate) {
+          e.preventDefault()
+          alert('Please select a date first!')
+          return
+        }
+
+        const status = form.querySelector('.status-btn').innerText
+        form.querySelector('.input-date').value = selectedDate
+        form.querySelector('.input-status').value = status
+        document.querySelector('.selected-status').innerText = status
+      })
+    })
+
+    // Handle go-to form
+    document.getElementById('form-go-to').addEventListener('submit', (e) => {
+      e.preventDefault()
+
+      const year = document.getElementById('input-year').value
+      const month = document.getElementById('input-month').value
+
+      if (year && month) {
+        window.location.href = `/mark/${course}/${year}/${month}/`
+      } else {
+        alert('Please enter both year and month.')
+      }
+    })
+  })
+</script>
+
+{% endblock %} {% block body %}
+<a id="home-btn" href="{% url 'index' %}">Home</a>
+
+<h1>{{ course }}</h1>
+
+<h2>{{ month_name }} {{ year }}</h2>
+
+<!-- Go to a specific month (placed above calendar) -->
+<div class="goto-container">
+  <span id="btn-go-open">Go to a month</span>
+</div>
+
+<!-- Navigation Buttons (Prev/Next) -->
+<div class="navigation-panel">
+  <a href="{% url 'attendance_calendar' course prev_year prev_month %}">Prev</a>
+  <a href="{% url 'attendance_calendar' course next_year next_month %}">Next</a>
+</div>
+
+<!-- Attendance Calendar -->
+<table border="1" cellspacing="0" cellpadding="5">
+  <thead>
+    <tr>
+      <th>Sun</th>
+      <th>Mon</th>
+      <th>Tue</th>
+      <th>Wed</th>
+      <th>Thu</th>
+      <th>Fri</th>
+      <th>Sat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      {% for day, status in days %}
+      <td
+        class="date{{ status|default:''|lower }} date-cell"
+        data-date="{{ day }}"
+        data-status="{{ status|default:'None' }}"
+      >
+        {% if day.month == month %}
+        <strong>{{ day.day }}</strong>
+        {% else %} &nbsp; {% endif %}
+      </td>
+      {% if forloop.counter|divisibleby:7 %}
+    </tr>
+    <tr>
+      {% endif %} {% endfor %}
+    </tr>
+  </tbody>
+</table>
+
+<!-- Mark Attendance Popup -->
+<div class="popup" id="popup-mark-attendance">
+  <div>
+    <div><strong>Date:</strong> <span class="selected-date">None</span></div>
+    <div>
+      <strong>Status:</strong> <span class="selected-status">Fetching</span>
+    </div>
+  </div>
+  <ul>
+    {% for status in statuses %}
+    <li>
+      <form method="POST" action="{% url 'saveattend' %}" class="status-form">
+        {% csrf_token %}
+        <input type="hidden" name="date" class="input-date" />
+        <input type="hidden" name="status" class="input-status" />
+        <input
+          type="hidden"
+          name="course"
+          class="input-course"
+          value="{{ course }}"
+        />
+        <button type="submit" class="status-btn">{{ status }}</button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<!-- Go-to Month Popup -->
+<div class="popup" id="popup-go-month">
+  <form id="form-go-to">
+    <input
+      type="number"
+      id="input-year"
+      name="year"
+      placeholder="Year"
+      min="0"
+    />
+    <input
+      type="number"
+      id="input-month"
+      name="month"
+      placeholder="Month"
+      min="1"
+      max="12"
+    />
+    <input type="submit" value="Go" />
+  </form>
+  <button id="btn-go-close">Close</button>
+</div>
+
+<div class="summary-panel">
+  <h3>Monthly Attendance Summary ({{ course }})</h3>
+  <ul>
+    <li><strong>Total Days:</strong> {{ summary.total_days }}</li>
+    <li><strong>Present:</strong> {{ summary.present }}</li>
+    <li><strong>Absent:</strong> {{ summary.absent }}</li>
+    <li><strong>Leave:</strong> {{ summary.leave }}</li>
+    <li><strong>Holiday:</strong> {{ summary.holiday }}</li>
+    <li><strong>Attendance %:</strong> {{ summary.attendance_percentage }}%</li>
+  </ul>
+
+  <h3>All-Time Attendance Summary ({{ course }})</h3>
+  <ul>
+    <li><strong>Total Days:</strong> {{ all_time_summary.total_days }}</li>
+    <li><strong>Present:</strong> {{ all_time_summary.present }}</li>
+    <li><strong>Absent:</strong> {{ all_time_summary.absent }}</li>
+    <li><strong>Leave:</strong> {{ all_time_summary.leave }}</li>
+    <li><strong>Holiday:</strong> {{ all_time_summary.holiday }}</li>
+    <li><b>Attendance %:</b> {{ all_time_summary.attendance_percentage }}%</li>
+  </ul>
+</div>
+
+{% endblock %}

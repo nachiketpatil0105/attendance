@@ -1,0 +1,126 @@
+{% extends "mark/layout.html" %} {% block style %}
+<style>
+  /* General Page Layout */
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+    height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Container for the Signup Form */
+  .signup-container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .signup-container h1 {
+    color: #0077cc;
+    margin-bottom: 20px;
+  }
+
+  /* Signup Form */
+  .signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .signup-form input[type='text'],
+  .signup-form input[type='password'] {
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 15px;
+  }
+
+  .signup-submit-btn {
+    background-color: #0077cc;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+  }
+
+  .signup-submit-btn:hover {
+    background-color: #005fa3;
+  }
+
+  /* Link to Login */
+  .login-redirect-container {
+    margin-top: 16px;
+    width: 100%;
+  }
+
+  .login-redirect-link {
+    display: block;
+    text-align: center;
+    background-color: #343a40;
+    color: white;
+    padding: 10px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .login-redirect-link:hover {
+    background-color: #212529;
+  }
+</style>
+{% endblock %} {% block body %}
+<div class="signup-container">
+  <h1>Sign Up</h1>
+  <form class="signup-form" action="{% url 'signup' %}" method="POST">
+    {% csrf_token %}
+    <input
+      type="text"
+      name="username"
+      placeholder="Username"
+      value="{{ form.username.value|default:'' }}"
+      required
+    />
+    <input
+      type="text"
+      name="first_name"
+      placeholder="Your Name"
+      value="{{ form.first_name.value|default:'' }}"
+    />
+    <input
+      type="password"
+      name="password1"
+      placeholder="Create Password"
+      required
+    />
+    <input
+      type="password"
+      name="password2"
+      placeholder="Confirm Password"
+      required
+    />
+    <input class="signup-submit-btn" type="submit" value="Sign Up" />
+  </form>
+
+  <div class="login-redirect-container">
+    <a class="login-redirect-link" href="{% url 'login' %}"
+      >Already have an account? Login</a
+    >
+  </div>
+</div>
+{% endblock %}

@@ -58,22 +58,25 @@ def sign_up(request):
 
 def login_view(request):
   if request.user.is_authenticated:
-    messages.error(request, "You Already Logged In")
+    messages.error(request, "You are already logged in.")
     return redirect("index")
+
   if request.method == "POST":
-    form = AuthenticationForm(request, data = request.POST)
+    form = AuthenticationForm(request, data=request.POST)
     if form.is_valid():
       user = form.get_user()
       login(request, user)
       return redirect("index")
     else:
-      return redirect("login")
+      # render with form including errors
+      return render(request, "mark/login.html", {
+        "form": form
+      })
   else:
     form = AuthenticationForm()
-
-  return render(request, "mark/login.html", {
-    "form": form
-  })
+    return render(request, "mark/login.html", {
+      "form": form
+    })
 
 def logout_view(request):
   logout(request)

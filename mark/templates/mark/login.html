@@ -1,6 +1,5 @@
 {% extends "mark/layout.html" %} {% block style %}
 <style>
-  /* Body Layout */
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f8f9fa;
@@ -13,7 +12,6 @@
     justify-content: center;
   }
 
-  /* Login Container */
   .login-wrapper {
     background-color: white;
     padding: 30px;
@@ -31,7 +29,6 @@
     margin-bottom: 20px;
   }
 
-  /* Login Form */
   .login-form {
     display: flex;
     flex-direction: column;
@@ -61,7 +58,6 @@
     background-color: #005fa3;
   }
 
-  /* Signup Link */
   .redirect-container {
     margin-top: 16px;
     width: 100%;
@@ -82,55 +78,40 @@
     background-color: #212529;
   }
 
-  /* Message Box */
-  .message-box {
+  .error {
+    color: red;
+    font-size: 14px;
     text-align: center;
-    margin-bottom: 30px;
-    padding: 20px;
-    border-radius: 8px;
-    background-color: #ffeeba;
-    border: 1px solid #ffe8a1;
-  }
-
-  .message-box h1 {
-    margin: 0;
-    color: #856404;
-  }
-
-  .message-box h2 {
-    margin-top: 10px;
-    font-weight: normal;
-    color: #6c757d;
-  }
-
-  .hidden {
-    display: none;
   }
 </style>
-{% endblock %} {% block script %}
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const messageDiv = document.querySelector('.message-box')
-    const message = messageDiv?.dataset.message
-
-    if (message) {
-      document.querySelector('.login-wrapper').classList.add('hidden')
-    }
-  })
-</script>
-{% endblock %} {% block body %} {% if messages %} {% for message in messages %}
-<div class="message-box" data-message="{{ message }}">
-  <h1>{{ message }}</h1>
-  <h2>Please refresh to login again</h2>
-</div>
-{% endfor %} {% endif %}
+{% endblock %} {% block body %}
 
 <div class="login-wrapper">
   <h1>Login</h1>
+
+  {% if form.non_field_errors %}
+  <div class="error">{{ form.non_field_errors.0 }}</div>
+  {% endif %}
+
   <form class="login-form" action="{% url 'login' %}" method="POST">
     {% csrf_token %}
-    <input type="text" name="username" placeholder="Username" required />
+
+    <input
+      type="text"
+      name="username"
+      placeholder="Username"
+      value="{{ form.username.value|default:'' }}"
+      required
+    />
+    {% if form.username.errors %}
+    <div class="error">{{ form.username.errors.0 }}</div>
+    {% endif %}
+
     <input type="password" name="password" placeholder="Password" required />
+    {% if form.password.errors %}
+    <div class="error">{{ form.password.errors.0 }}</div>
+    {% endif %}
+
     <input type="submit" value="Login" class="login-submit-btn" />
   </form>
 

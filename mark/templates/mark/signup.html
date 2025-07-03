@@ -89,6 +89,7 @@
   <h1>Sign Up</h1>
   <form class="signup-form" action="{% url 'signup' %}" method="POST">
     {% csrf_token %}
+    <!-- Username Field -->
     <input
       type="text"
       name="username"
@@ -96,24 +97,43 @@
       value="{{ form.username.value|default:'' }}"
       required
     />
+    {% if form.username.errors %}
+    <small style="color: red">{{ form.username.errors.0 }}</small>
+    {% endif %}
+
+    <!-- First Name Field -->
     <input
       type="text"
       name="first_name"
       placeholder="Your Name"
       value="{{ form.first_name.value|default:'' }}"
     />
+    {% if form.first_name.errors %}
+    <small style="color: red">{{ form.first_name.errors.0 }}</small>
+    {% endif %}
+
+    <!-- Password 1 Field -->
     <input
       type="password"
       name="password1"
       placeholder="Create Password"
       required
     />
+    {% if form.password1.errors %}
+    <small style="color: red">{{ form.password1.errors.0 }}</small>
+    {% endif %}
+
+    <!-- Password 2 Field -->
     <input
       type="password"
       name="password2"
       placeholder="Confirm Password"
       required
     />
+    {% if form.password2.errors %}
+    <small style="color: red">{{ form.password2.errors.0 }}</small>
+    {% endif %}
+
     <input class="signup-submit-btn" type="submit" value="Sign Up" />
   </form>
 

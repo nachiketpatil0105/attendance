@@ -27,7 +27,6 @@ SECRET_KEY = 'django-insecure-3p2^v%(sd578=j48t*usnp%(sixw@0m-&z)wqu65na3n@l4&$-
 DEBUG = False
 
 ALLOWED_HOSTS = ['self-attendance.onrender.com']
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CSRF_TRUSTED_ORIGINS = ['https://self-attendance.onrender.com']
 
 

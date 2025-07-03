@@ -156,6 +156,7 @@
     margin: 6px 0;
     border: 1px solid #ced4da;
     border-radius: 6px;
+    box-sizing: border-box;
     font-size: 14px;
   }
 
@@ -318,7 +319,7 @@
       const month = document.getElementById('input-month').value
 
       if (year && month) {
-        window.location.href = `/mark/${course}/${year}/${month}/`
+        window.location.href = `/${course}/${year}/${month}/`
       } else {
         alert('Please enter both year and month.')
       }

@@ -237,11 +237,11 @@
   let selectedDate = null
   const course = '{{ course }}'
 
-  //  window.addEventListener('pageshow', function (event) {
-  //    if (event.persisted || window.performance.navigation.type === 2) {
-  //      window.location.href = '/' // Force reload to index on back navigation
-  //    }
-  //  })
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted || window.performance.navigation.type === 2) {
+      window.location.href = '/' // Force reload to index on back navigation
+    }
+  })
 
   document.addEventListener('DOMContentLoaded', () => {
     const popupGoMonth = document.querySelector('#popup-go-month')
